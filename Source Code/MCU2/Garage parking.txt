@@ -1,0 +1,76 @@
+			case START_MEASURE:
+				Serial.println("START_MEASURE");
+				//myservo.detach();
+				gap += (newPosition - oldPosition);
+				if (gap < 10 && dR < 30)
+					NEXT_STATE = WALL_ALIGNMENT;
+				else if ((gap >= 9 && dR < 30) || gap >= 9) {
+					NEXT_STATE = REVERSE_POINT;
+					mode = 2;
+					gap = 0;
+				}
+
+				break;
+			case REVERSE_POINT:
+				gap += (newPosition - oldPosition);
+				Serial.println("REVERSE_POINT");
+				if (gap >= 8)
+				{
+					mode = 4;
+					gap = 0;
+					NEXT_STATE = PARKING__1;
+				}
+				break;
+			case PARKING__1:
+				myservo.attach(5);
+				Serial.println("PARKING__1");
+				myservo.write(180);
+				delay(500);
+				myservo.detach();
+				delay(500);
+				if (dR > 60 )
+					NEXT_STATE = PARKING__2;
+				break;
+			case PARKING__2:
+				gap += (newPosition - oldPosition);
+				Serial.println("PARKING__2");
+				mode = 6;					//forward
+				//if (dR >= 20 && dBack < 70)
+				if (gap >= 10) {
+					gap = 0;
+					NEXT_STATE = PARKING__3;
+				}
+				break;
+			case PARKING__3:
+				Serial.println("PARKING__3");
+				myservo.attach(5);
+				myservo.write(90);
+				//goBackward();
+				mode = 4;					//stop
+				if (dF > dR)
+					NEXT_STATE = PARKING__4;
+				break;
+			case PARKING__4:
+				Serial.println("PARKING__4");
+				myservo.write(0);
+				mode = 0;
+				//if (dBack <=17 &&  dF > dR)
+				if (dF>=dR && dBack <= 32)
+					NEXT_STATE = PARKING__5;
+				break;
+			case PARKING__5:
+				Serial.println("PARKING__5");
+				myservo.write(90);
+				mode = 2;
+				if (dBack <= 15)
+					NEXT_STATE = FINISH;
+				break;
+			case FINISH:
+				Serial.println("PARKING__5");
+				myservo.write(90);
+				mode = 4;
+
+				break;
+			default:
+				Serial.println("NO CASE");
+				break;
